@@ -1,0 +1,36 @@
+{
+  "name": "magpie-agent-varin",
+  "version": "0.1.0",
+  "description": "Varin on magpie's Agents page: pick the model its conversations run on, and let the Library give it instructions, MCP servers and skills",
+  "type": "module",
+  "files": [
+    "agent.js",
+    "icon.js",
+    "varin-provider.js",
+    "setup.mjs",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "setup": "node setup.mjs"
+  },
+  "keywords": [
+    "magpie",
+    "magpie-agent",
+    "varin",
+    "agent",
+    "harness"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Hi-Jiajun/magpie-agent-varin.git"
+  },
+  "homepage": "https://github.com/Hi-Jiajun/magpie-agent-varin#readme",
+  "bugs": {
+    "url": "https://github.com/Hi-Jiajun/magpie-agent-varin/issues"
+  },
+  "magpie": {
+    "agent": "./agent.js"
+  }
+}
