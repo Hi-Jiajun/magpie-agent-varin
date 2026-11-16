@@ -105,6 +105,12 @@ pick a model.
 ## Tested
 
 - magpie 0.1.4093 on linux/x64, Varin 0.9.49.
-- Pointer only: Windows and macOS were not tried.
+- Switching models: `magpie varin group/…` writes only `defaultModel`; the rest of
+  `agent-settings.json` (including `harness.permissions`) is left byte-identical,
+  and `magpie varin default` puts it back.
+- Library: after `library` was declared, magpie listed `varin` against every MCP
+  server and skill, and wrote them into `~/.config/varin/mcp.json` and
+  `~/.config/varin/resources/skills/`.
+- Windows and macOS were not tried.
 
 MIT.
