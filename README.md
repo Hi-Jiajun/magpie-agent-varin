@@ -12,14 +12,14 @@ Varin keeps its conversation default in one plain JSON file:
 ```
 
 `defaultModel` is the model id exactly as Varin's own channel lists it, so magpie
-only has to write that one key. Switching off puts the file back as it was, key by
-key; magpie never rewrites it whole.
+writes that one key and nothing else. Switching off puts the file back as it was,
+key by key; magpie never rewrites it whole.
 
 ## Install
 
 ```sh
-magpie plugin add ./                      # this folder
-magpie plugin add github:Hi-Jiajun/magpie-agent-varin   # or from GitHub
+magpie plugin add github:Hi-Jiajun/magpie-agent-varin
+# or, from a clone: magpie plugin add ./
 ```
 
 Then pick a model in Varin's row on the **Agents** page — or from the shell:
@@ -31,25 +31,14 @@ magpie varin group/deepseek-v4.1-flash-smart  # set it
 magpie varin default                          # back to what Varin had
 ```
 
-## The icon
-
-The row wears Varin's own application icon, taken from the official AppImage
-(`usr/share/icons/hicolor/1024x1024/apps/varin.png`), downscaled to 256×256 and
-carried inline in `icon.js` as a `data:` URL — a magpie agent module cannot read
-files, and `agent.icon` takes an icon name, an `https://` or a `data:` URL.
-
-Magpie caches it under `~/.config/magpie/icons/<sha256-of-png>.png` and records it
-in `plugin-icons.json`, so the picture survives without re-reading the plugin.
-
-To regenerate from a local Varin install, resize that PNG to 256×256 into
-`assets/icon-256.png` (e.g. with `sharp`), then rewrite `icon.js` as
-`export const ICON = 'data:image/png;base64,…'`.
+Varin reads its default when a Run starts: open a new conversation (or restart
+Varin) to use the new model.
 
 ## The Library
 
-`library` is what puts Varin in magpie's Library, so instructions, MCP servers and
-skills can be ticked for it there. Without it magpie leaves the agent out: it is
-given nothing, and ticking an item for it is refused.
+The `library` block in `varin.agent.js` is what puts Varin in magpie's Library, so
+instructions, MCP servers and skills can be ticked for it there. Without it magpie
+leaves the agent out: it is given nothing, and ticking an item for it is refused.
 
 ```js
 library: {
@@ -73,44 +62,58 @@ These are Varin's own paths, taken from its resource resolution
 The `resources` folder does not exist until something writes there: magpie creates
 it the first time it writes an instruction or a skill for Varin.
 
-## Keep `defaultProvider` pointed at the right channel (optional)
+## The icon
 
-`defaultProvider` is a per-install UUID, and a magpie agent module cannot read
-files. `varin-provider.js` ships **empty**, which writes only `defaultModel` and
-leaves `defaultProvider` as it was. That is correct whenever Varin's default
-channel already carries the model — the normal case, since a Magpie channel is what
-lets Varin reach magpie's models at all.
+The row wears Varin's own application icon, taken from the official AppImage
+(`usr/share/icons/hicolor/1024x1024/apps/varin.png`), downscaled to 256×256 and
+carried inline as a `data:` URL. An agent module runs on moejs — one file, no
+imports, no file reads — so the icon cannot be a path on disk.
 
-If your Varin has several channels and the default is another vendor's, fill it in:
+magpie caches it under `~/.config/magpie/icons/<sha256-of-png>.png` and records it
+in `plugin-icons.json`, so the picture survives without re-reading the plugin.
 
-```sh
-node setup.mjs        # or: npm run setup
-git diff              # it rewrites a published file — review before committing
+## `defaultProvider` is left alone (by design)
+
+`defaultProvider` is a per-install UUID, and this module cannot read
+`models.json` to discover it. So `connect()` returns nothing and magpie writes only
+`defaultModel`; Varin keeps the channel it already had. That is correct whenever
+Varin's default channel already carries the model — the normal case, since a Magpie
+channel is what lets Varin reach magpie's models at all.
+
+If your Varin has several channels and the default is another vendor's, fill the
+two constants at the top of `varin.agent.js`:
+
+```js
+const PROVIDER_ID = '<id of the channel whose baseUrl is your magpie gateway>'
+const KNOWN_MODELS = new Set(['group/…', …])   // the ids that channel carries
 ```
 
-It reads `~/.config/varin/models.json`, finds the channel pointing at this
-computer's magpie gateway, and records that channel id plus the model ids it
-carries. With it filled, the plugin also keeps `defaultProvider` correct when you
-pick a model.
+Both come from `~/.config/varin/models.json`. With them filled, `connect()` also
+keeps `defaultProvider` pointing at the right channel. `connect()` still writes
+nothing for a model that set does not contain, because magpie also calls it while
+previewing a pick — writing the channel id there would pair a provider with a model
+it does not serve.
 
 ## Known limits
 
 - **It picks among what Varin already knows.** Varin's channel lists its models as
   a JSON array, and magpie merges object members only, so this plugin cannot add a
   model Varin does not already carry.
-- **Varin reads the default when a Run starts.** Pick a model, then open a new
-  conversation (or restart Varin) to use it.
 - A single conversation's own model choice is not touched.
 
 ## Tested
 
 - magpie 0.1.4093 on linux/x64, Varin 0.9.49.
-- Switching models: `magpie varin group/…` writes only `defaultModel`; the rest of
-  `agent-settings.json` (including `harness.permissions`) is left byte-identical,
-  and `magpie varin default` puts it back.
-- Library: after `library` was declared, magpie listed `varin` against every MCP
-  server and skill, and wrote them into `~/.config/varin/mcp.json` and
-  `~/.config/varin/resources/skills/`.
+- Switching models writes only `defaultModel`; the rest of `agent-settings.json`
+  (including `harness.permissions`) is left byte-identical, and `magpie varin
+  default` puts it back.
+- Library: magpie lists `varin` against every MCP server and skill, and writes them
+  into `~/.config/varin/mcp.json` and `~/.config/varin/resources/skills/`.
+- The icon: magpie cached it under `icons/` with a matching sha256.
 - Windows and macOS were not tried.
+
+```sh
+bun test     # 4 tests
+```
 
 MIT.

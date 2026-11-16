@@ -4,15 +4,12 @@
   "description": "Varin on magpie's Agents page: pick the model its conversations run on, and let the Library give it instructions, MCP servers and skills",
   "type": "module",
   "files": [
-    "agent.js",
-    "icon.js",
-    "varin-provider.js",
-    "setup.mjs",
+    "varin.agent.js",
     "README.md",
     "LICENSE"
   ],
   "scripts": {
-    "setup": "node setup.mjs"
+    "test": "bun test"
   },
   "keywords": [
     "magpie",
@@ -31,6 +28,6 @@
     "url": "https://github.com/Hi-Jiajun/magpie-agent-varin/issues"
   },
   "magpie": {
-    "agent": "./agent.js"
+    "agent": "./varin.agent.js"
   }
 }
