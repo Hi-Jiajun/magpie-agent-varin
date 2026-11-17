@@ -32,10 +32,15 @@ This plugin picks a model **Varin already carries**. It cannot add the channel
 that carries magpie's models, so on a Varin that has never been pointed at
 magpie's gateway, the row appears and the model list is empty.
 
-Add the gateway once, by hand, under **Agent → model services**: an
-**OpenAI compatible** service at `http://127.0.0.1:3425/v1`, then **fetch
-models**. That is the same one-time step Ollama and LM Studio users do. magpie's
-models then appear in this plugin's row.
+On **Varin 0.9.49 and earlier**, add the gateway once by hand under **Agent →
+model services**: an **OpenAI compatible** service at
+`http://127.0.0.1:3425/v1`, then **fetch models**. That is the same one-time step
+Ollama and LM Studio users do. magpie's models then appear in this plugin's row.
+
+Later Varin releases ship Magpie as a built-in service, so the row is there to
+pick directly and this section no longer applies. Varin tells you which it is:
+if **Magpie** appears in the list of services when adding a model service, the
+preset is built in.
 
 Why the plugin cannot do it: Varin keeps its channels in a top-level JSON
 **array** (`models.json` → `channels`), and magpie's agent contract sets
@@ -47,10 +52,13 @@ has neither shape.
 
 Two other routes exist, both outside this plugin:
 
-- **Varin can ship the entry itself.** [Astrmira/Varin#382](https://github.com/Astrmira/Varin/pull/382)
-  adds Magpie to Varin's channel directory, so it appears in *add a model
-  service* with the endpoint filled in — the same way Ollama and LM Studio do.
-  Once that lands in a Varin release, this section stops applying.
+- **Varin can ship the preset itself.** [Astrmira/Varin#382](https://github.com/Astrmira/Varin/pull/382)
+  is merged: it registers Magpie as a built-in model service on the existing
+  OpenAI-compatible configuration, so it appears in *add a model service* with
+  the endpoint filled in and no authentication — the same way Ollama and LM
+  Studio do. Because it is a built-in type rather than a directory entry, it
+  carries the full OpenAI-compatible capabilities. Once that reaches a Varin
+  release, this section stops applying. Varin 0.9.49 does not have it yet.
 - **A script can add the channel through Varin's own API** (`read`, `save`,
   `discover`, `test`), so Varin validates and discovers everything itself. That is
   what `varin-link-magpie` does; it is not part of this package.
